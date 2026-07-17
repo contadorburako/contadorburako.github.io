@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Burako">
+<meta name="theme-color" content="#0a291d">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Burako</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a291d;--bg2:#10382a;--bg3:#1b4f3a;--bg4:#28654b;
+  --text:#f7f4e9;--dim:#a3bfae;
+  --blue:#1f9e63;--green:#059669;--red:#dc2626;--amber:#d97706;
+  --gold:#e6c15c;
+  --r:13px;
+}
+html{height:-webkit-fill-available;}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow:hidden;-webkit-font-smoothing:antialiased;font-size:16px;}
+body{background:radial-gradient(ellipse at 50% 0%,#0e3626 0%,var(--bg) 60%,#071e15 100%);}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;overflow:hidden;}
+
+/* ── layout ── */
+.topbar{display:flex;align-items:center;gap:10px;background:var(--bg2);
+  padding:12px 16px;border-bottom:1px solid var(--bg3);flex-shrink:0;}
+.topbar h2{font-size:1rem;font-weight:700;}
+.sub{font-size:.72rem;color:var(--dim);margin-top:1px;}
+.back{background:none;color:var(--dim);font-size:1.4rem;padding:2px 8px 2px 0;border:none;cursor:pointer;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;}
+.bar{flex-shrink:0;background:var(--bg);border-top:1px solid var(--bg3);
+  padding:12px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom));}
+
+/* ── card ── */
+.card{background:var(--bg2);border-radius:var(--r);padding:14px;margin-bottom:10px;
+  border:1px solid rgba(230,193,92,.12);box-shadow:0 2px 10px rgba(0,0,0,.25);}
+.ctitle{font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:10px;
+  letter-spacing:.06em;text-transform:uppercase;}
+
+/* ── buttons ── */
+.btn{display:block;width:100%;padding:14px;border-radius:var(--r);font-size:.95rem;
+  font-weight:600;text-align:center;border:none;cursor:pointer;transition:filter .12s;margin-bottom:8px;}
+.btn:last-child{margin-bottom:0;}
+.btn:active{filter:brightness(.8);}
+.btn-blue{background:linear-gradient(180deg,#f0cd6e,#d9a93f);color:#231a05;font-weight:800;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.btn-gray{background:var(--bg3);color:var(--text);}
+.btn-link{background:transparent;color:var(--dim);text-decoration:underline;
+  padding:8px;font-weight:400;font-size:.85rem;}
+.btn-sm{padding:10px 12px;font-size:.85rem;}
+.btn-icon{background:var(--bg3);border:none;cursor:pointer;border-radius:9px;
+  padding:10px 14px;color:var(--text);font-size:.85rem;white-space:nowrap;}
+
+/* ── inputs ── */
+input[type=text],input[type=password],input[type=number],select{
+  display:block;width:100%;background:var(--bg3);color:var(--text);
+  border:none;border-radius:10px;padding:11px 13px;font-size:.95rem;outline:none;}
+input:focus,select:focus{outline:2px solid var(--gold);}
+input[type=file]{display:none!important;}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.lbl{display:block;font-size:.75rem;color:var(--dim);margin-bottom:4px;margin-top:10px;}
+
+/* ── counter ── */
+.ctr{display:flex;align-items:center;gap:10px;padding:4px 0;}
+.cb{width:38px;height:38px;border-radius:50%;background:var(--bg3);
+  color:var(--text);font-size:1.3rem;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cb:active{filter:brightness(.75);}
+.cv{font-size:1.35rem;font-weight:700;min-width:32px;text-align:center;}
+.cl{flex:1;font-size:.88rem;line-height:1.3;}
+.cl .small{font-size:.72rem;color:var(--dim);}
+
+/* ── toggle ── */
+.tog{display:flex;align-items:center;gap:10px;padding:5px 0;cursor:pointer;}
+.tog label{flex:1;font-size:.88rem;cursor:pointer;}
+
+/* ── score table ── */
+table{width:100%;border-collapse:collapse;}
+th,td{padding:9px 10px;text-align:left;}
+thead tr{background:var(--bg);}
+tbody tr{border-top:1px solid var(--bg3);}
+th{font-size:.72rem;color:var(--dim);font-weight:500;}
+.tc{text-align:center;}
+.win td{color:#fbbf24!important;}
+.win{background:#1c1505;}
+
+/* ── progress ── */
+.pdots{display:flex;gap:5px;align-items:center;}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--bg3);transition:all .2s;}
+.pd.cur{width:11px;height:11px;background:var(--gold);}
+.pd.done{background:var(--green);}
+
+/* ── result rows ── */
+.rr{display:flex;justify-content:space-between;align-items:center;
+  padding:11px 13px;border-radius:10px;margin-bottom:6px;}
+.rr-pos{background:#052e16;border:1px solid #065f46;}
+.rr-amb{background:#431407;border:1px solid var(--amber);}
+.rr-blu{background:#082f49;border:1px solid #0369a1;}
+.rr-neg{background:#2d1515;border:1px solid var(--red);}
+.rr-tot{background:var(--bg2);margin-top:4px;}
+
+/* ── misc ── */
+.row{display:flex;gap:8px;align-items:center;}
+.btw{justify-content:space-between;}
+.f1{flex:1;}
+.bold{font-weight:700;}
+.big{font-size:1.35rem;}
+.dim{color:var(--dim);}
+.green{color:#34d399;}
+.red{color:#f87171;}
+.amber{color:#fbbf24;}
+.center{text-align:center;}
+.hint{font-size:.75rem;color:var(--dim);line-height:1.4;margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.chip{background:var(--bg3);border:none;color:var(--dim);border-radius:20px;
+  padding:5px 12px;font-size:.78rem;cursor:pointer;white-space:nowrap;}
+.chip:active{background:var(--bg4);color:var(--text);}
+.err{background:#2d1515;border:1px solid var(--red);border-radius:10px;
+  padding:11px;font-size:.82rem;color:#fca5a5;margin-top:10px;}
+
+/* ── photo ── */
+.photo-box{width:100%;max-height:300px;object-fit:contain;border-radius:10px;
+  display:block;background:#080808;margin-bottom:10px;}
+
+/* ── loading ── */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px;text-align:center;}
+@keyframes bd{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
+.dots{display:flex;gap:8px;margin-top:20px;justify-content:center;}
+.dot{width:11px;height:11px;background:var(--gold);border-radius:50%;
+  animation:bd 1.2s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+
+/* ── grupos detectados ── */
+.grow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.gfichas{display:flex;flex-wrap:wrap;gap:3px;}
+.fch{display:inline-flex;align-items:center;justify-content:center;
+  min-width:22px;height:26px;padding:0 3px;border-radius:5px;
+  background:#f5f0dd;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);
+  font-size:.8rem;font-weight:800;cursor:pointer;user-select:none;}
+.fch.off{opacity:.3;text-decoration:line-through;background:#8a8574;}
+.gbadge{border:none;border-radius:20px;padding:6px 11px;font-size:.72rem;
+  font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.gb-limpia{background:#0d3d24;color:#6ee7a0;border:1px solid #1f9e63;}
+.gb-sucia{background:#3d2c0d;color:#fbbf24;border:1px solid var(--amber);}
+.gb-no{background:var(--bg3);color:var(--dim);border:1px solid var(--bg4);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ══════════════════════════════════════
+//  SCORING
+// ══════════════════════════════════════
+const TV={1:15,2:20,3:5,4:5,5:5,6:5,7:5,8:10,9:10,10:10,11:10,12:10,13:10};
+
+function calcScore(f){
+  // f = {limpias, sucias, fichas_en_juego, fichas_en_mano, salio, muertos}
+  // If zero canastas → everything counts against
+  if(f.limpias===0 && f.sucias===0){
+    return -(f.fichas_en_juego + f.muertos*100 + f.fichas_en_mano);
+  }
+  const base = f.limpias*200 + f.sucias*100;
+  const bonus = f.salio ? 100 : 0;
+  return base + f.fichas_en_juego + bonus - f.muertos*100 - f.fichas_en_mano;
+}
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let S={
+  screen:'home',
+  apiKey: localStorage.getItem('bk_key')||'',
+  model:  localStorage.getItem('bk_model')||'claude-sonnet-4-6',
+  // game config
+  players:[],   // [{name}]
+  target:2500,  // puntaje objetivo
+  hands:[],     // [[{pidx,total,snap}]]
+  // current hand
+  hand:[],
+  drafts:[],    // per-player draft {form,photo,grupos} for current hand
+  pidx:0,
+  form:null,    // live form {limpias,sucias,fichas_en_juego,fichas_en_mano,salio,muertos}
+  snap:null,    // frozen copy for result screen
+  // photo
+  photo:null,
+  grupos:[],    // [{fichas:[{valor,color}], canasta:'limpia'|'sucia'|'no', pts}]
+  loading:false,
+  error:null,
+};
+
+// Restore saved game
+try{
+  const g=JSON.parse(localStorage.getItem('bk_game')||'null');
+  if(g?.players?.length){
+    S.players=g.players; S.hands=g.hands||[];
+    S.target=g.target||2500; S.screen='game';
+  }
+}catch(_){}
+
+function save(){
+  try{
+    localStorage.setItem('bk_key', S.apiKey);
+    localStorage.setItem('bk_model', S.model);
+    localStorage.setItem('bk_game', JSON.stringify({
+      players:S.players, hands:S.hands, target:S.target
+    }));
+  }catch(_){}
+}
+
+function loadNames(){
+  try{return JSON.parse(localStorage.getItem('bk_names')||'[]');}catch(_){return[];}
+}
+function saveNames(names){
+  try{
+    const prev=loadNames();
+    const merged=[...new Set([...names,...prev])].filter(Boolean).slice(0,20);
+    localStorage.setItem('bk_names',JSON.stringify(merged));
+  }catch(_){}
+}
+// Global: called from chip onclick
+function pickName(i,name){
+  const el=document.getElementById('p'+i);
+  if(el){el.value=name;}
+}
+
+function totals(){
+  return S.players.map((_,i)=>
+    S.hands.reduce((s,h)=>s+(h.find(r=>r.pidx===i)?.total??0),0));
+}
+
+function blankForm(){
+  return {limpias:0,sucias:0,fichas_en_juego:0,fichas_en_mano:0,salio:false,muertos:0};
+}
+
+// Carga el borrador del jugador actual (o formulario vacío)
+function loadDraft(){
+  const d=S.drafts[S.pidx];
+  S.form=d?{...d.form}:blankForm();
+  S.photo=d?.photo||null;
+  S.grupos=d?.grupos||[];
+  S.snap=null;S.error=null;
+}
+
+// Foto en pantalla completa (tocar para cerrar)
+function zoomPhoto(){
+  if(!S.photo)return;
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:99;display:flex;align-items:center;justify-content:center;padding:10px';
+  d.innerHTML=`<img src="${S.photo}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">
+    <div style="position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#a3bfae;font-size:.8rem">Tocá para cerrar</div>`;
+  d.onclick=()=>d.remove();
+  document.body.appendChild(d);
+}
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+function render(){
+  try{
+    const MAP={home,newgame,settings,game,entry,result,winner,manual};
+    document.getElementById('app').innerHTML=MAP[S.screen]?.()||'';
+    bind();
+  }catch(e){
+    document.getElementById('app').innerHTML=
+      `<div style="padding:24px;color:#fca5a5"><b>Error:</b> ${e.message}<br><br>
+       <button onclick="localStorage.clear();location.reload()"
+         style="background:#374151;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer">
+         Reiniciar</button></div>`;
+  }
+}
+
+// ── HOME ────────────────────────────
+function home(){
+  const hasSaved = S.players.length>0;
+  return `
+  <div class="scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%">
+    <div class="center" style="width:100%;max-width:340px;padding:0 16px">
+      <div style="font-size:4rem;margin-bottom:8px">🃏</div>
+      <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:2.3rem;font-weight:700;margin-bottom:4px;color:var(--gold);letter-spacing:1px">Burako</h1>
+      <div style="width:56px;height:2px;background:var(--gold);opacity:.5;margin:0 auto 10px"></div>
+      <p class="dim" style="font-size:.85rem;margin-bottom:40px">Contador automático de puntos</p>
+
+      <button id="goNew" class="btn btn-blue" style="font-size:1rem">Nueva partida</button>
+      ${hasSaved?`<button id="goCont" class="btn btn-gray">Continuar (Mano ${S.hands.length+1})</button>`:''}
+      <button id="goManual" class="btn btn-gray">📖 Manual de uso</button>
+      <button id="goSettings" class="btn btn-link" style="margin-top:8px">⚙️ Configuración API</button>
+    </div>
+  </div>`;
+}
+
+// ── NEW GAME ─────────────────────────
+function newgame(){
+  const n=Math.max(S.players.length,2);
+  const hist=loadNames();
+  const pinputs=Array.from({length:n},(_,i)=>{
+    const chips=hist.length
+      ? `<div class="chips">${hist.map(nm=>`<button class="chip" onclick="pickName(${i},'${x(nm)}')">${x(nm)}</button>`).join('')}</div>`
+      : '';
+    return`
+    <label class="lbl">Jugador ${i+1}</label>
+    <input id="p${i}" type="text" value="${x(S.players[i]?.name||'')}"
+      placeholder="Nombre del jugador ${i+1}" autocomplete="off">
+    ${chips}`;
+  }).join('');
+  return `
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button id="backHome" class="back">←</button>
+      <h2>Nueva partida</h2>
+    </div>
+    <div class="scroll" style="flex:1;overflow-y:auto">
+      <div class="card">
+        <div class="ctitle">👥 Jugadores</div>
+        <div class="row btw" style="margin-bottom:10px">
+          <span class="hint" style="margin:0">Entre 2 y 4 jugadores</span>
+          <div class="row" style="gap:6px">
+            <button id="rmv" class="cb" style="width:32px;height:32px;font-size:1rem"
+              ${n<=2?'disabled style="opacity:.35"':''}>−</button>
+            <button id="add" class="cb" style="width:32px;height:32px;font-size:1rem"
+              ${n>=4?'disabled style="opacity:.35"':''}>+</button>
+          </div>
+        </div>
+        ${pinputs}
+      </div>
+
+      <div class="card">
+        <div class="ctitle">🎯 Puntaje objetivo</div>
+        <p class="hint">El primer jugador en alcanzar este puntaje gana la partida.</p>
+        <input id="target" type="number" min="100" step="100" value="${S.target}" placeholder="3000">
+      </div>
+
+      <div style="height:8px"></div>
+    </div>
+    <div class="bar" style="flex-shrink:0">
+      <button id="confirmNew" class="btn btn-blue">Empezar partida 🚀</button>
+    </div>
+  </div>`;
+}
+
+// ── MANUAL ───────────────────────────
+function manual(){
+  const paso=(n,titulo,texto)=>`
+    <div style="display:flex;gap:12px;margin-bottom:14px">
+      <div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--gold);
+        color:#231a05;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem">${n}</div>
+      <div>
+        <div style="font-weight:700;margin-bottom:3px">${titulo}</div>
+        <div style="font-size:.85rem;color:var(--dim);line-height:1.5">${texto}</div>
+      </div>
+    </div>`;
+  return`
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button id="backHome3" class="back">←</button>
+      <h2>📖 Manual de uso</h2>
+    </div>
+    <div class="scroll">
+
+      <div class="card">
+        <div class="ctitle">🎮 Cómo se usa</div>
+        ${paso(1,'Creá la partida','Tocá <b>Nueva partida</b>, poné los nombres de los jugadores (2 a 4) y el puntaje para ganar (normalmente 2500 o 3000).')}
+        ${paso(2,'Al final de cada mano, cargá los puntos','Tocá <b>Cargar mano</b>. La app te va llevando jugador por jugador.')}
+        ${paso(3,'Sacá una foto de las canastas','Tocá <b>📷 Fotografiar</b> y sacá una foto de las fichas del jugador sobre la mesa. La app detecta sola los grupos, cuenta las fichas y clasifica las canastas.')}
+        ${paso(4,'Verificá lo detectado','Abajo de la foto aparecen los grupos. <b>Tocá una ficha</b> para descartarla si la app vio una de más. <b>Tocá la etiqueta</b> (Pura/Impura/No) si hay que corregir la clasificación.')}
+        ${paso(5,'Completá lo que falta','Marcá si el jugador salió primero, cuántos muertos quedaron sin comprar, y las fichas que le quedaron en la mano a quien no terminó.')}
+        ${paso(6,'Confirmá y seguí','Tocá <b>Siguiente jugador</b>. Al cargar el último, la mano se suma a la tabla. Cuando alguien llega al puntaje objetivo, ¡hay ganador! 🏆')}
+      </div>
+
+      <div class="card">
+        <div class="ctitle">🧮 Cómo se cuentan los puntos</div>
+        <div style="font-size:.85rem;line-height:1.7">
+          <div class="row btw"><span>Canasta pura (sin comodín)</span><b class="green">+200</b></div>
+          <div class="row btw"><span>Canasta impura (con comodín)</span><b class="amber">+100</b></div>
+          <div class="row btw"><span>Salir primero</span><b class="green">+100</b></div>
+          <div class="row btw"><span>Fichas bajadas en la mesa</span><b class="green">+ su valor</b></div>
+          <div class="row btw"><span>Cada muerto sin comprar</span><b class="red">−100</b></div>
+          <div class="row btw"><span>Fichas que quedaron en mano</span><b class="red">− su valor</b></div>
+        </div>
+        <p class="hint" style="margin-top:8px;margin-bottom:0">⚠️ Sin al menos una canasta, <b>todos</b> los puntos cuentan en contra.</p>
+      </div>
+
+      <div class="card">
+        <div class="ctitle">🃏 Valor de cada ficha</div>
+        <div style="font-size:.85rem;line-height:1.7">
+          <div class="row btw"><span>Del 3 al 7</span><b>5 pts</b></div>
+          <div class="row btw"><span>Del 8 al 13</span><b>10 pts</b></div>
+          <div class="row btw"><span>El 1</span><b>15 pts</b></div>
+          <div class="row btw"><span>El 2</span><b>20 pts</b></div>
+          <div class="row btw"><span>Comodín ★</span><b>50 pts</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ctitle">💡 Consejos para la foto</div>
+        <p class="hint" style="margin-bottom:6px">📐 Sacala desde arriba, con las fichas bien separadas por grupo.</p>
+        <p class="hint" style="margin-bottom:6px">💡 Con buena luz y sin sombras fuertes se detecta mejor.</p>
+        <p class="hint" style="margin-bottom:6px">🔍 Siempre verificá el total antes de confirmar — podés corregir cualquier número a mano.</p>
+        <p class="hint" style="margin-bottom:0">✏️ Si preferís, podés cargar todo a mano sin foto: usá los botones + y − y escribí el valor total.</p>
+      </div>
+
+      <div style="height:8px"></div>
+    </div>
+  </div>`;
+}
+
+// ── SETTINGS ─────────────────────────
+function settings(){
+  const mopts=[
+    ['claude-sonnet-4-6','Sonnet 4.6 — Recomendado'],
+    ['claude-opus-4-8','Opus 4.8 — Más preciso'],
+    ['claude-haiku-4-5-20251001','Haiku 4.5 — Más rápido'],
+  ].map(([v,l])=>`<option value="${v}" ${S.model===v?'selected':''}>${l}</option>`).join('');
+  return `
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button id="backHome2" class="back">←</button>
+      <h2>Configuración</h2>
+    </div>
+    <div class="scroll">
+      <div class="card">
+        <div class="ctitle">🔑 API Key de Anthropic</div>
+        <p class="hint">Se usa para reconocer fichas en fotos. Gratis en <b>console.anthropic.com</b></p>
+        <input id="apikey" type="password" placeholder="sk-ant-api03-..." value="${x(S.apiKey)}">
+        <label class="lbl">Modelo</label>
+        <select id="model">${mopts}</select>
+      </div>
+    </div>
+    <div class="bar">
+      <button id="saveSettings" class="btn btn-blue">Guardar</button>
+    </div>
+  </div>`;
+}
+
+// ── GAME ─────────────────────────────
+function game(){
+  const ts=totals();
+  const mx=Math.max(...ts,0);
+  const hn=S.hands.length;
+  const heads=S.players.map((p,i)=>{
+    const win=ts[i]===mx&&mx>0;
+    const near=ts[i]>=S.target*0.9;
+    return`<th class="tc" style="font-size:.8rem;color:var(--text)">${win?'👑 ':''}${x(p.name)}${near&&!win?` <span style="font-size:.7rem;color:var(--amber)">▲</span>`:''}</th>`;
+  }).join('');
+  const totRow=`<tr class="win"><td class="bold">Total</td>${S.players.map((_,i)=>{
+    const win=ts[i]===mx&&mx>0;
+    return`<td class="tc bold big${win?' amber':''}">${ts[i].toLocaleString()}</td>`;
+  }).join('')}</tr>`;
+  const handRows=S.hands.map((h,hi)=>{
+    const cells=S.players.map((_,i)=>{
+      const r=h.find(r=>r.pidx===i);
+      if(!r)return`<td class="tc dim">−</td>`;
+      return`<td class="tc ${r.total>=0?'green':'red'}"style="font-size:.82rem">${r.total>=0?'+':''}${r.total}</td>`;
+    }).join('');
+    return`<tr><td class="dim">M${hi+1}</td>${cells}</tr>`;
+  }).join('');
+  return`
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar" style="justify-content:space-between">
+      <div><h2>🃏 Burako</h2><div class="sub">Mano ${hn+1} · Meta: ${S.target.toLocaleString()} pts</div></div>
+      <button id="goHome" class="btn-icon">≡</button>
+    </div>
+    <div class="scroll" style="padding:0">
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Mano</th>${heads}</tr></thead>
+          <tbody>${totRow}${handRows}</tbody>
+        </table>
+      </div>
+      ${hn===0?`<p class="dim center"style="padding:28px;font-size:.85rem">Sin manos jugadas todavía</p>`:''}
+    </div>
+    <div class="bar">
+      <button id="startHand" class="btn btn-blue" style="margin-bottom:8px">📋 Cargar mano ${hn+1}</button>
+      ${hn>0?`<button id="undoHand" class="btn btn-gray">↩️ Deshacer última mano</button>`:''}
+    </div>
+  </div>`;
+}
+
+// ── ENTRY ─────────────────────────────
+function entry(){
+  const f=S.form;
+  const p=S.players[S.pidx];
+  const n=S.players.length;
+  const sub=calcScore(f);
+  const sinCan=f.limpias===0&&f.sucias===0;
+  const dots=S.players.map((_,i)=>`<div class="pd ${i===S.pidx?'cur':i<S.pidx?'done':''}"></div>`).join('');
+  const hasPhoto=!!S.photo;
+
+  if(S.loading) return`
+  <div class="loading">
+    <div style="font-size:3rem">🤖</div>
+    <h2 style="margin-top:10px">Analizando canastas…</h2>
+    <p class="dim"style="font-size:.85rem;margin-top:6px">Detectando canastas y contando fichas de <b>${x(p.name)}</b></p>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>`;
+
+  return`
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button id="backGame" class="back">←</button>
+      <div class="f1"><h2>${x(p.name)}</h2><div class="sub">Jugador ${S.pidx+1} de ${n}</div></div>
+      <div class="pdots">${dots}</div>
+    </div>
+
+    <div class="scroll">
+
+      <!-- FOTO + CANASTAS -->
+      <div class="card">
+        <div class="row btw" style="margin-bottom:10px">
+          <div class="ctitle" style="margin:0">📷 Canastas en juego</div>
+          ${hasPhoto
+            ? `<label for="photoTrig" style="font-size:.75rem;color:var(--gold);cursor:pointer">📷 Retomar</label>`
+            : `<label for="photoTrig" class="btn-icon" style="cursor:pointer;font-size:.8rem">📷 Fotografiar</label>`
+          }
+        </div>
+        ${hasPhoto?`<img src="${S.photo}" onclick="zoomPhoto()" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-bottom:4px;cursor:pointer">
+        <p class="hint" style="margin-bottom:10px">🔍 Tocá la foto para agrandarla</p>`:''}
+        ${S.error?`<div class="err" style="margin-bottom:10px">⚠️ ${x(S.error)}</div>`:''}
+        ${!hasPhoto?`<p class="hint" style="margin-bottom:10px">Fotografiá las canastas — la IA detecta puras, impuras y el valor de fichas automáticamente.</p>`:''}
+        <input type="file" id="photoTrig" accept="image/*" capture="environment">
+
+        <div class="ctr" style="margin-bottom:10px">
+          <button class="cb"id="lm">−</button>
+          <span class="cv"id="lv">${f.limpias}</span>
+          <button class="cb"id="lp">+</button>
+          <div class="cl">Canastas puras<br><span class="small">200 pts base cada una</span></div>
+        </div>
+        <div class="ctr" style="margin-bottom:10px">
+          <button class="cb"id="sm">−</button>
+          <span class="cv"id="sv">${f.sucias}</span>
+          <button class="cb"id="sp">+</button>
+          <div class="cl">Canastas impuras<br><span class="small">100 pts base cada una</span></div>
+        </div>
+
+        <label class="lbl">Valor total de fichas ${hasPhoto?'<span style="color:var(--gold)">(verificá y corregí si hace falta)</span>':''}</label>
+        <input id="fj" type="number" min="0" value="${f.fichas_en_juego}" placeholder="0" style="font-size:1.2rem;font-weight:700;padding:14px">
+        ${renderGrupos()}
+
+        ${sinCan?`<div style="margin-top:10px;background:#2d1515;border:1px solid var(--red);border-radius:9px;padding:9px 11px;font-size:.8rem;color:#fca5a5">
+          ⚠️ Sin canastas — todos los puntos serán negativos</div>`:''}
+      </div>
+
+      <!-- MUERTOS: 3 botones -->
+      <div class="card">
+        <div class="ctitle">💀 Muertos sin comprar</div>
+        <div class="row" style="gap:8px">
+          ${[0,1,2].map(v=>{
+            const sel=f.muertos===v;
+            return`<button id="mu${v}" style="flex:1;padding:14px 0;border-radius:10px;
+              border:2px solid ${sel?'var(--red)':'var(--bg3)'};
+              background:${sel?'#2d1515':'var(--bg3)'};
+              color:${sel?'#fca5a5':'var(--text)'};
+              font-size:1.1rem;font-weight:700;cursor:pointer">
+              ${v===0?'0 ✓':v===1?'1 💀':'2 💀💀'}
+            </button>`;
+          }).join('')}
+        </div>
+        ${f.muertos>0?`<p style="font-size:.75rem;color:#f87171;margin-top:6px">−${f.muertos*100} pts</p>`:''}
+      </div>
+
+      <!-- EXTRAS -->
+      <div class="card">
+        <div class="tog">
+          <input type="checkbox" id="salio" ${f.salio?'checked':''}>
+          <label for="salio">🏅 Salió primero <span class="dim" style="font-size:.75rem">(+100 pts)</span></label>
+        </div>
+        <div style="margin-top:12px">
+          <label class="lbl">❌ Fichas en mano (si no terminó)</label>
+          <input id="fm" type="number" min="0" value="${f.fichas_en_mano}" placeholder="0">
+        </div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="card" style="background:#161e2e;border:1px solid #2d3748">
+        <div class="row btw">
+          <span class="bold">Subtotal</span>
+          <span class="bold big ${sub>=0?'green':'red'}"id="prev">${sub>=0?'+':''}${sub}</span>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+    </div>
+
+    <div class="bar">
+      ${S.pidx>0?`<button id="prevPlayer" class="btn btn-gray btn-sm">⬅️ Volver a ${x(S.players[S.pidx-1].name)}</button>`:''}
+      <button id="nextPlayer" class="btn btn-blue">
+        ${S.pidx===n-1?'✅ Confirmar':'➡️ Siguiente jugador'}
+      </button>
+    </div>
+  </div>`;
+}
+
+// ── RESULT (per-player) ───────────────
+function result(){
+  const f=S.snap; // use frozen snapshot
+  const p=S.players[S.pidx];
+  const total=calcScore(f);
+  const sinCan=f.limpias===0&&f.sucias===0;
+  const isLast=S.pidx===S.players.length-1;
+  const tc=total>=0?'green':'red';
+  const rows=[];
+
+  if(sinCan){
+    if(f.fichas_en_juego>0) rows.push(rr('rr-neg',`Fichas en juego (sin canastas → resta)`,'red',`−${f.fichas_en_juego}`));
+    if(f.muertos>0)         rows.push(rr('rr-neg',`${f.muertos} muerto${f.muertos>1?'s':''} sin comprar`,'red',`−${f.muertos*100}`));
+    if(f.fichas_en_mano>0)  rows.push(rr('rr-neg','Fichas en mano','red',`−${f.fichas_en_mano}`));
+    rows.push(rr('rr-neg','⚠️ Sin canastas — todo negativo','red',''));
+  } else {
+    if(f.limpias>0)         rows.push(rr('rr-pos',`${f.limpias} canasta${f.limpias>1?'s':''} pura${f.limpias>1?'s':''}  (+${f.limpias*200} base)`,'green',`+${f.limpias*200}`));
+    if(f.sucias>0)          rows.push(rr('rr-amb',`${f.sucias} canasta${f.sucias>1?'s':''} impura${f.sucias>1?'s':''}  (+${f.sucias*100} base)`,'amber',`+${f.sucias*100}`));
+    if(f.fichas_en_juego>0) rows.push(rr('','Fichas en el juego','',`+${f.fichas_en_juego}`,'background:#1a2535;border:1px solid #334155'));
+    if(f.salio)             rows.push(rr('rr-blu','🏅 Salió primero','','+100',''));
+    if(f.muertos>0)         rows.push(rr('rr-neg',`${f.muertos} muerto${f.muertos>1?'s':''} sin comprar`,'red',`−${f.muertos*100}`));
+    if(f.fichas_en_mano>0)  rows.push(rr('rr-neg','Fichas en mano','red',`−${f.fichas_en_mano}`));
+  }
+
+  return`
+  <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button id="backEntry3" class="back">←</button>
+      <div><h2>${x(p.name)}</h2><div class="sub">Resultado mano ${S.hands.length+1}</div></div>
+    </div>
+    <div class="scroll">
+      ${rows.join('')}
+      <div class="rr rr-tot row btw" style="margin-top:6px">
+        <span class="bold">Total mano</span>
+        <span class="bold big ${tc}">${total>=0?'+':''}${total}</span>
+      </div>
+      <div style="height:10px"></div>
+    </div>
+    <div class="bar">
+      <div class="row" style="gap:8px;margin-bottom:${isLast?'0':'8px'}">
+        <button id="editBack" class="btn btn-gray btn-sm f1" style="margin:0">✏️ Editar</button>
+        <button id="confirmP" class="btn btn-blue btn-sm f1" style="margin:0">
+          ${isLast?'✅ Terminar mano':'➡️ Siguiente'}
+        </button>
+      </div>
+      ${!isLast?`<p class="dim center"style="font-size:.78rem;margin-top:6px">Siguiente: ${x(S.players[S.pidx+1]?.name)}</p>`:''}
+    </div>
+  </div>`;
+}
+
+// ── grupos detectados (tocá el badge para corregir) ──
+const FICHA_COLORS={rojo:'#c1272d',azul:'#1d4fa8',amarillo:'#b57e00',naranja:'#d2691e',negro:'#1f2430',verde:'#1b7a3d'};
+function renderGrupos(){
+  if(!S.grupos.length)return'';
+  const filas=S.grupos.map((g,i)=>{
+    const fichasHtml=g.fichas.map((f,j)=>{
+      const c=FICHA_COLORS[f.color]||'var(--text)';
+      const off=f.off?' off':'';
+      const inner=f.valor==='comodin'?'★':x(f.valor);
+      const col=f.valor==='comodin'?'#7c3aed':c;
+      return`<span class="fch${off}" style="color:${col}" onclick="toggleFicha(${i},${j})">${inner}</span>`;
+    }).join('');
+    const activas=g.fichas.filter(f=>!f.off).length;
+    const warn=g.declarada&&g.declarada!==activas
+      ?`<span style="color:#fbbf24"> · ⚠️ la IA contó ${g.declarada}, revisá</span>`:'';
+    const badge=g.canasta==='limpia'
+      ?`<button class="gbadge gb-limpia" onclick="ciclarGrupo(${i})">✅ Pura</button>`
+      :g.canasta==='sucia'
+      ?`<button class="gbadge gb-sucia" onclick="ciclarGrupo(${i})">♻️ Impura</button>`
+      :`<button class="gbadge gb-no" onclick="ciclarGrupo(${i})">— No</button>`;
+    return`<div class="grow">
+      <div class="f1">
+        <div class="gfichas">${fichasHtml}</div>
+        <div style="font-size:.7rem;color:var(--dim);margin-top:2px">${activas} fichas · ${g.pts} pts${warn}</div>
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+  const tot=S.grupos.reduce((s,g)=>s+g.pts,0);
+  return`<div style="margin-top:8px;background:var(--bg);border-radius:10px;padding:10px 12px">
+    <div style="font-size:.68rem;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">
+      Grupos detectados · tocá una ficha para descartarla · tocá la etiqueta para corregir</div>
+    ${filas}
+    <div style="font-size:.78rem;color:var(--dim);border-top:1px solid var(--bg3);padding-top:6px;margin-top:4px">
+      Total: <b style="color:var(--text)">${tot} pts</b></div>
+  </div>`;
+}
+
+// Tocar una ficha la descarta (si la IA vio de más); tocarla de nuevo la restaura
+function toggleFicha(i,j){
+  const g=S.grupos[i];
+  if(!g||!g.fichas[j])return;
+  g.fichas[j].off=!g.fichas[j].off;
+  const act=g.fichas.filter(f=>!f.off);
+  g.pts=grupoPts(act);
+  g.canasta=clasificarGrupo(act);
+  aplicarGrupos();
+  render();
+}
+
+function rr(cls,label,valCls,val,extraStyle=''){
+  return`<div class="rr ${cls}" style="${extraStyle}">
+    <span>${label}</span>
+    ${val?`<span class="bold ${valCls}">${val}</span>`:''}
+  </div>`;
+}
+
+// ── WINNER ────────────────────────────
+function winner(){
+  const ts=totals();
+  const sorted=[...S.players.map((p,i)=>({name:p.name,pts:ts[i]}))].sort((a,b)=>b.pts-a.pts);
+  const w=sorted[0];
+  return`
+  <div class="scroll"style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;text-align:center">
+    <div style="padding:0 24px;max-width:360px;width:100%">
+      <div style="font-size:4rem;margin-bottom:8px">🏆</div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:#fbbf24;margin-bottom:4px">¡${x(w.name)} ganó!</h1>
+      <p class="dim"style="margin-bottom:24px">${w.pts.toLocaleString()} puntos · ${S.hands.length} manos jugadas</p>
+      <div class="card" style="text-align:left;margin-bottom:24px">
+        ${sorted.map((p,i)=>`
+        <div class="row btw" style="padding:8px 0;${i>0?'border-top:1px solid var(--bg3)':''}">
+          <span>${i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':''} ${x(p.name)}</span>
+          <span class="bold">${p.pts.toLocaleString()}</span>
+        </div>`).join('')}
+      </div>
+      <button id="goHome2" class="btn btn-blue">Nueva partida</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+//  BIND
+// ══════════════════════════════════════
+function bind(){
+  // HOME
+  on('goNew',()=>{S.screen='newgame';render();});
+  on('goCont',()=>{S.screen='game';render();});
+  on('goSettings',()=>{S.screen='settings';render();});
+  on('goManual',()=>{S.screen='manual';render();});
+  on('backHome3',()=>{S.screen='home';render();});
+  on('goHome',()=>{S.screen='home';render();});
+  on('goHome2',()=>{S.players=[];S.hands=[];localStorage.removeItem('bk_game');S.screen='home';render();});
+
+  // NEW GAME
+  on('backHome',()=>{S.screen='home';render();});
+  on('add',()=>{const n=pnames();if(n.length<4)n.push('');S.players=n.map(v=>({name:v}));render();});
+  on('rmv',()=>{const n=pnames();if(n.length>2)n.pop();S.players=n.map(v=>({name:v}));render();});
+  on('confirmNew',()=>{
+    const names=pnames();
+    if(!names.length||names.every(n=>!n)){alert('Ingresá al menos un nombre');return;}
+    S.players=names.map(n=>({name:n||'Jugador'}));
+    S.target=Math.max(100, parseInt(document.getElementById('target')?.value)||2500);
+    saveNames(names);
+    S.hands=[];S.hand=[];S.drafts=[];S.pidx=0;
+    S.form=blankForm();S.snap=null;
+    S.photo=null;S.grupos=[];S.error=null;
+    S.screen='entry';
+    save();render();
+  });
+
+  // SETTINGS
+  on('backHome2',()=>{S.screen='home';render();});
+  on('saveSettings',()=>{
+    S.apiKey=v('apikey')||S.apiKey;
+    S.model=v('model')||S.model;
+    save();S.screen='home';render();
+  });
+
+  // GAME
+  on('startHand',()=>{
+    S.pidx=0;S.hand=[];S.drafts=[];
+    S.form=blankForm();S.snap=null;
+    S.photo=null;S.grupos=[];S.error=null;
+    S.screen='entry';render();
+  });
+  on('undoHand',()=>{
+    if(S.hands.length>0&&confirm('¿Deshacer la última mano?')){
+      S.hands.pop();save();render();
+    }
+  });
+
+  // ENTRY
+  on('backGame',()=>{S.screen='game';render();});
+
+  // canasta counters
+  [['lm','limpias',-1],['lp','limpias',1],
+   ['sm','sucias',-1], ['sp','sucias',1],
+  ].forEach(([id,field,d])=> on(id,()=>{adj(field,d);preview();}));
+
+  // muertos: 3 buttons
+  [0,1,2].forEach(v=> on(`mu${v}`,()=>{S.form.muertos=v;render();}));
+
+  // inputs
+  ['fj','fm'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.oninput=()=>{syncNums();preview();};
+  });
+  const salEl=document.getElementById('salio');
+  if(salEl) salEl.onchange=()=>{S.form.salio=salEl.checked;preview();};
+
+  // photo trigger inline — analyze immediately after capture
+  bindFile('photoTrig',(url)=>{S.photo=url;analyzePhoto();});
+
+  on('nextPlayer',()=>{
+    syncAll();
+    S.drafts[S.pidx]={form:{...S.form},photo:S.photo,grupos:S.grupos};
+    if(S.pidx===S.players.length-1){
+      S.hand=S.drafts.map((d,i)=>({pidx:i,total:calcScore(d?.form||blankForm()),snap:{...(d?.form||blankForm())}}));
+      S.hands.push(S.hand);
+      S.drafts=[];
+      save();
+      const ts=totals();
+      const wonIdx=ts.findIndex(t=>t>=S.target);
+      S.screen=wonIdx>=0?'winner':'game';
+    }else{
+      S.pidx++;
+      loadDraft();
+      S.screen='entry';
+    }
+    render();
+  });
+  on('prevPlayer',()=>{
+    if(S.pidx===0)return;
+    syncAll();
+    S.drafts[S.pidx]={form:{...S.form},photo:S.photo,grupos:S.grupos};
+    S.pidx--;
+    loadDraft();
+    render();
+  });
+  bindFile('camIn',(url)=>{S.photo=url;S.error=null;render();});
+  bindFile('galIn',(url)=>{S.photo=url;S.error=null;render();});
+
+  // RESULT
+  on('backEntry3',()=>{S.screen='entry';render();});
+  on('editBack',()=>{S.screen='entry';render();});
+  on('confirmP',()=>{
+    const total=calcScore(S.snap);
+    S.hand.push({pidx:S.pidx,total,snap:{...S.snap}});
+
+    if(S.pidx===S.players.length-1){
+      // hand complete
+      S.hands.push(S.hand);
+      save();
+      // check winner
+      const ts=totals();
+      const wonIdx=ts.findIndex(t=>t>=S.target);
+      if(wonIdx>=0){S.screen='winner';}
+      else{S.screen='game';}
+    } else {
+      S.pidx++;
+      S.form=blankForm();S.snap=null;
+      S.photo=null;S.grupos=[];S.error=null;
+      S.screen='entry';
+    }
+    render();
+  });
+}
+
+// ══════════════════════════════════════
+//  FORM HELPERS
+// ══════════════════════════════════════
+function adj(field,delta){
+  if(!S.form)return;
+  S.form[field]=Math.max(0,(S.form[field]||0)+delta);
+  const idMap={limpias:'lv',sucias:'sv',muertos:'mv'};
+  const el=document.getElementById(idMap[field]);
+  if(el) el.textContent=S.form[field];
+}
+function syncNums(){
+  if(!S.form)return;
+  S.form.fichas_en_juego=Math.max(0,+v('fj')||0);
+  S.form.fichas_en_mano =Math.max(0,+v('fm')||0);
+}
+function syncAll(){
+  syncNums();
+  const s=document.getElementById('salio');
+  if(s) S.form.salio=s.checked;
+}
+function preview(){
+  syncNums();
+  const el=document.getElementById('prev');
+  if(!el)return;
+  const val=calcScore(S.form);
+  el.textContent=(val>=0?'+':'')+val;
+  el.className=`bold big ${val>=0?'green':'red'}`;
+  // also show/hide sin canastas warning dynamically
+  // (full re-render only on counter change to show the warning banner)
+  if(S.form.limpias===0&&S.form.sucias===0){
+    const card=document.querySelector('#lv')?.closest('.card');
+    let warn=document.getElementById('sincanwarn');
+    if(!warn&&card){
+      warn=document.createElement('div');
+      warn.id='sincanwarn';
+      warn.style.cssText='margin-top:10px;background:#2d1515;border:1px solid var(--red);border-radius:9px;padding:9px 11px;font-size:.8rem;color:#fca5a5';
+      warn.textContent='⚠️ Sin canastas — todos los puntos serán negativos';
+      card.appendChild(warn);
+    }
+  } else {
+    document.getElementById('sincanwarn')?.remove();
+  }
+}
+
+// ══════════════════════════════════════
+//  FILE / COMPRESS
+// ══════════════════════════════════════
+function bindFile(id,cb){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.onchange=e=>{
+    const file=e.target.files?.[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>compress(ev.target.result,1568,.92,cb);
+    reader.readAsDataURL(file);
+    el.value='';
+  };
+}
+function compress(dataUrl,maxDim,q,cb){
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas');
+    let [w,h]=[img.width,img.height];
+    if(w>maxDim||h>maxDim){if(w>=h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}
+    c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',q));
+  };
+  img.src=dataUrl;
+}
+
+// ══════════════════════════════════════
+//  CLAUDE API
+// ══════════════════════════════════════
+const FICHA_VALS={1:15,2:20,3:5,4:5,5:5,6:5,7:5,8:10,9:10,10:10,11:10,12:10,13:10,comodin:50};
+
+// Clasificación DETERMINÍSTICA — la app decide, no la IA.
+// fichas: [{valor:'1'..'13'|'comodin', color:'rojo'|'azul'|'amarillo'|'negro'|...}]
+function clasificarGrupo(fichas){
+  const n=fichas.length;
+  if(n<7) return 'no';
+  const comodines=fichas.filter(f=>f.valor==='comodin');
+  const nums=fichas.filter(f=>f.valor!=='comodin');
+  if(!nums.length) return 'no';
+
+  // ── PIERNA: fichas numéricas del mismo valor ──
+  const vals=[...new Set(nums.map(f=>+f.valor))];
+  if(vals.length===1){
+    // Todas del mismo número (una pierna de 2s también es limpia)
+    return comodines.length ? 'sucia' : 'limpia';
+  }
+  if(vals.length===2 && vals.includes(2)){
+    // Pierna de N con 2(s) usados como comodín
+    return 'sucia';
+  }
+
+  // ── ESCALERA: mismo color, valores consecutivos ──
+  const colCount={};
+  nums.forEach(f=>{colCount[f.color]=(colCount[f.color]||0)+1;});
+  const colorDom=Object.keys(colCount).sort((a,b)=>colCount[b]-colCount[a])[0];
+  const offColor=nums.filter(f=>f.color!==colorDom);
+  // Fichas de otro color solo son válidas si son un 2 (usado como comodín)
+  if(offColor.some(f=>+f.valor!==2)) return 'no';
+  const wilds=comodines.length+offColor.length;
+
+  const propios=nums.filter(f=>f.color===colorDom).map(f=>+f.valor);
+  if(new Set(propios).size!==propios.length) return 'no'; // valores duplicados
+
+  const gapsOf=arr=>{
+    const a=[...arr].sort((x,y)=>x-y);
+    let g=0;
+    for(let i=1;i<a.length;i++) g+=a[i]-a[i-1]-1;
+    return g;
+  };
+  // El 1 puede ir antes del 2 o después del 13
+  const variantes=propios.includes(1)
+    ? [propios, propios.map(v=>v===1?14:v)]
+    : [propios];
+
+  for(const pv of variantes){
+    if(gapsOf(pv)<=wilds){
+      // Escalera válida. LIMPIA si no hay comodines ni 2 de otro color:
+      // un 2 del mismo color en posición consecutiva es NATURAL.
+      return wilds===0 ? 'limpia' : 'sucia';
+    }
+    // ¿Un 2 del mismo color usado como comodín (fuera de su posición)?
+    if(pv.includes(2)){
+      const sin2=pv.filter(v=>v!==2);
+      if(sin2.length>=2 && gapsOf(sin2)<=wilds+1) return 'sucia';
+    }
+  }
+  return 'no';
+}
+
+function grupoPts(fichas){
+  return fichas.reduce((s,f)=>s+(FICHA_VALS[String(f.valor).toLowerCase()]||0),0);
+}
+
+// Recalcula el formulario a partir de S.grupos
+function aplicarGrupos(){
+  let total=0,limpias=0,sucias=0;
+  for(const g of S.grupos){
+    total+=g.pts;
+    if(g.canasta==='limpia')limpias++;
+    else if(g.canasta==='sucia')sucias++;
+  }
+  S.form.fichas_en_juego=total;
+  S.form.limpias=limpias;
+  S.form.sucias=sucias;
+}
+
+// Llamado desde onclick: cicla la clasificación de un grupo (por si la IA se equivoca)
+function ciclarGrupo(i){
+  const g=S.grupos[i];
+  if(!g)return;
+  g.canasta=g.canasta==='no'?'sucia':g.canasta==='sucia'?'limpia':'no';
+  aplicarGrupos();
+  render();
+}
+
+async function analyzePhoto(){
+  if(!S.apiKey){alert('Ingresá tu API key en Configuración.');return;}
+  S.loading=true;S.error=null;render();
+
+  const [,mime,b64]=S.photo.match(/^data:([^;]+);base64,(.+)$/);
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':S.apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:S.model||'claude-sonnet-4-6',
+        max_tokens:3000,
+        tools:[{
+          name:'registrar_fichas',
+          description:`Registra cada grupo de fichas de Burako visible en la foto.
+
+CONTEO — LO MÁS IMPORTANTE:
+- Para cada grupo: PRIMERO contá cuántas fichas hay (campo "cantidad"), DESPUÉS listalas una por una de izquierda a derecha.
+- La lista debe tener EXACTAMENTE "cantidad" fichas. El error más común es listar una ficha DE MÁS (ej: ver "7,2,9" y listar "7,7,2,9"). NUNCA repitas una ficha.
+- Si dudás entre 5 o 6 fichas, contá de nuevo mirando la foto.
+- Registrá el VALOR y el COLOR de CADA ficha individual.
+- Comodines/jokers (ficha con dibujo o estrella): valor "comodin".
+- NO clasifiques las canastas: la app lo calcula sola a partir de tu lista. Tu única tarea es contar y transcribir con exactitud.`,
+          input_schema:{
+            type:'object',
+            properties:{
+              grupos:{
+                type:'array',
+                description:'Cada grupo de fichas visible en la foto, por separado',
+                items:{
+                  type:'object',
+                  properties:{
+                    cantidad:{
+                      type:'integer',
+                      description:'PRIMERO: cantidad de fichas del grupo, contadas mirando la foto ANTES de listarlas'
+                    },
+                    fichas:{
+                      type:'array',
+                      description:'DESPUÉS: cada ficha del grupo, de izquierda a derecha. La lista debe tener EXACTAMENTE "cantidad" elementos — ni uno más, ni uno menos. No repitas fichas.',
+                      items:{
+                        type:'object',
+                        properties:{
+                          valor:{type:'string',enum:['1','2','3','4','5','6','7','8','9','10','11','12','13','comodin']},
+                          color:{type:'string',enum:['rojo','azul','amarillo','negro','naranja','verde']}
+                        },
+                        required:['valor','color']
+                      }
+                    }
+                  },
+                  required:['cantidad','fichas']
+                }
+              }
+            },
+            required:['grupos']
+          }
+        }],
+        tool_choice:{type:'tool',name:'registrar_fichas'},
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mime,data:b64}},
+          {type:'text',text:'Transcribí cada grupo de fichas de Burako de esta foto. Contá ficha por ficha, de izquierda a derecha, registrando valor y color de cada una. Verificá el conteo de cada grupo antes de registrarlo: la cantidad listada debe coincidir exactamente con las fichas visibles. No clasifiques canastas, solo transcribí.'}
+        ]}]
+      })
+    });
+
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${res.status}`);}
+
+    const data=await res.json();
+    const toolResult=data.content?.find(c=>c.type==='tool_use');
+    if(!toolResult?.input) throw new Error('Sin respuesta estructurada del modelo.');
+
+    // La clasificación la hace la APP (determinística), no la IA
+    S.grupos=(toolResult.input.grupos||[])
+      .map(g=>({
+        declarada:+g.cantidad||0,
+        fichas:(g.fichas||[]).map(f=>({
+          valor:String(f.valor??f??'').toLowerCase(),
+          color:String(f.color??'').toLowerCase()
+        }))
+      }))
+      .filter(g=>g.fichas.length>0)
+      .map(g=>({...g,canasta:clasificarGrupo(g.fichas),pts:grupoPts(g.fichas)}));
+
+    aplicarGrupos();
+
+    S.loading=false;S.error=null;render();
+    setTimeout(()=>{
+      const el=document.getElementById('fj');
+      if(el){el.style.outline='2px solid var(--gold)';setTimeout(()=>el.style.outline='',1500);}
+      preview();
+    },50);
+
+  }catch(err){
+    S.loading=false;
+    S.error=err.message||'Error desconocido.';
+    render();
+  }
+}
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function on(id,fn){const e=document.getElementById(id);if(e)e.onclick=fn;}
+function v(id){return document.getElementById(id)?.value?.trim()??'';}
+function x(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pnames(){return Array.from(document.querySelectorAll('input[id]')).filter(e=>/^p\d+$/.test(e.id)).map(e=>e.value.trim());}
+
+render();
+
+// Register service worker for PWA / offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
